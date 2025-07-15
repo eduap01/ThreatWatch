@@ -2,11 +2,14 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import OAuth2PasswordBearer
 
-from backend.app.api import auth
+from backend.app.api import auth, file_analysis
 from backend.app.core.database import Base, engine
+
+from backend.app.models import user, file
 
 app = FastAPI()
 app.include_router(auth.router)
+app.include_router(file_analysis.router)
 
 # Crea las tablas si no existen (sólo para desarrollo)
 Base.metadata.create_all(bind=engine)
