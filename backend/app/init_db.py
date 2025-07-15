@@ -1,4 +1,4 @@
-from backend.app.core.databse import engine
+from backend.app.core.database import engine, Base
 
 
 def init():
