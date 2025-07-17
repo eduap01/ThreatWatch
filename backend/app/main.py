@@ -44,3 +44,9 @@ def custom_openapi():
     return app.openapi_schema
 
 app.openapi = custom_openapi
+
+import pyclamd
+
+cd = pyclamd.ClamdAgnostic()
+print("ClamAV disponible:", cd.ping())
+
