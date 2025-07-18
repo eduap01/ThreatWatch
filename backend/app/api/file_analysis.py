@@ -1,9 +1,12 @@
 import datetime
 import hashlib
 import asyncio
+import os
+
 import httpx
 import traceback
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
@@ -11,6 +14,7 @@ from sqlalchemy.orm import Session
 from backend.app.core.database import get_db
 from backend.app.models.file import FileAnalysis
 from backend.app.schemas.file import FileAnalysisOut
+from backend.app.services.producer import send_analysis_task
 
 router = APIRouter(prefix="/files", tags=["files"])
 
@@ -65,28 +69,34 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
         content = await file.read()
         sha256 = hashlib.sha256(content).hexdigest()
 
-        # Verificar si ya fue analizado antes
+        # Verificar si ya está analizado
         existing = db.query(FileAnalysis).filter(FileAnalysis.sha256 == sha256).first()
         if existing:
             return FileAnalysisOut.from_attributes(existing)
 
-        # Enviar a VirusTotal
-        result_summary = await scan_with_virustotal(content)
-
+        # Guardar el archivo en la base de datos con estado "pendiente"
         file_record = FileAnalysis(
             filename=file.filename,
             content_type=file.content_type,
             sha256=sha256,
-            result_summary=result_summary,
+            result_summary="Pending",
             uploaded_at=datetime.datetime.utcnow()
         )
-
         db.add(file_record)
         db.commit()
         db.refresh(file_record)
+
+        # Enviar tarea a RabbitMQ
+        await send_analysis_task({
+            "file_id": file_record.id,
+            "filename": file.filename,
+            "sha256": sha256,
+            "content": content.decode("latin1")  # codifica binario a string temporalmente
+        })
+
         return FileAnalysisOut.from_attributes(file_record)
 
     except Exception as e:
-        print(f"Error uploading file: {e}", flush=True)
+        print(f"Error uploading file: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal error uploading file")
