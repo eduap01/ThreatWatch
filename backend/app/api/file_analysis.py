@@ -69,16 +69,15 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
         content = await file.read()
         sha256 = hashlib.sha256(content).hexdigest()
 
-        # Verificar si ya está analizado
         existing = db.query(FileAnalysis).filter(FileAnalysis.sha256 == sha256).first()
         if existing:
-            return FileAnalysisOut.from_attributes(existing)
+            return FileAnalysisOut.model_validate(existing, from_attributes=True)
 
-        # Guardar el archivo en la base de datos con estado "pendiente"
         file_record = FileAnalysis(
             filename=file.filename,
             content_type=file.content_type,
             sha256=sha256,
+            content=content,
             result_summary="Pending",
             uploaded_at=datetime.datetime.utcnow()
         )
@@ -86,17 +85,42 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
         db.commit()
         db.refresh(file_record)
 
-        # Enviar tarea a RabbitMQ
         await send_analysis_task({
             "file_id": file_record.id,
             "filename": file.filename,
             "sha256": sha256,
-            "content": content.decode("latin1")  # codifica binario a string temporalmente
+            "content": content.decode("latin1")
         })
 
-        return FileAnalysisOut.from_attributes(file_record)
+        return FileAnalysisOut.model_validate(file_record, from_attributes=True)
 
     except Exception as e:
         print(f"Error uploading file: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal error uploading file")
+
+
+@router.get("/files/{file_id}", response_model=FileAnalysisOut)
+def get_file_analysis(file_id: int, db: Session = Depends(get_db)):
+    file_record = db.query(FileAnalysis).filter(FileAnalysis.id == file_id).first()
+    if not file_record:
+        raise HTTPException(status_code=404, detail="File analysis not found")
+    return file_record
+
+@router.get("/analyze/{file_id}", response_model=FileAnalysisOut)
+async def analyze_file_by_id(file_id: int, db: Session = Depends(get_db)):
+    file_record = db.query(FileAnalysis).filter(FileAnalysis.id == file_id).first()
+    if not file_record:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Llama a scan_with_virustotal con el contenido guardado
+    result_summary = await scan_with_virustotal(file_record.content)
+
+    # Actualiza la base de datos
+    file_record.result_summary = result_summary
+    file_record.analyzed_at = datetime.datetime.utcnow()
+    db.commit()
+    db.refresh(file_record)
+
+    return FileAnalysisOut.from_orm(file_record)
+

@@ -14,6 +14,7 @@ class FileAnalysisCreate(FileAnalysisBase):
 class FileAnalysisOut(FileAnalysisBase):
     id: int
     uploaded_at: datetime
+    analyzed_at: datetime | None = None
 
     class Config:
         from_attributes = True

@@ -1,8 +1,8 @@
 import json
 import os
-from mailbox import Message
 
-from aio_pika import connect_robust
+
+from aio_pika import connect_robust, Message
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,7 +19,7 @@ async def send_analysis_task(task_data: dict):
 
         message = Message(
             body=json.dumps(task_data).encode(),
-            contnet_type= "application/json"
+            content_type="application/json"
         )
 
         await channel.default_exchange.publish(
