@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import asyncio
 import os
+import json
 
 import httpx
 import traceback
@@ -12,6 +13,7 @@ from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from backend.app.core.database import get_db
+from backend.app.core.redis import redis_client
 from backend.app.models.file import FileAnalysis
 from backend.app.schemas.file import FileAnalysisOut
 from backend.app.services.producer import send_analysis_task
@@ -21,7 +23,7 @@ router = APIRouter(prefix="/files", tags=["files"])
 load_dotenv()
 VT_API_KEY = os.getenv("VIRUSTOTAL_API_KEY")
 
-async def scan_with_virustotal(content: bytes) -> str:
+async def scan_with_virustotal(content: bytes) -> dict:
     try:
         headers = {
             "x-apikey": VT_API_KEY
@@ -36,7 +38,7 @@ async def scan_with_virustotal(content: bytes) -> str:
             )
 
         if upload_response.status_code != 200:
-            return f"Error uploading to VT: {upload_response.text}"
+            return {"error": f"Error uploading to VT: {upload_response.text}"}
 
         analysis_id = upload_response.json()["data"]["id"]
 
@@ -49,18 +51,23 @@ async def scan_with_virustotal(content: bytes) -> str:
             )
 
         if analysis_response.status_code != 200:
-            return f"Error fetching results: {analysis_response.text}"
+            return {"error": f"Error fetching results: {analysis_response.text}"}
 
         stats = analysis_response.json()["data"]["attributes"]["stats"]
-        if stats["malicious"] > 0:
-            return f"Infected (malicious: {stats['malicious']})"
-        else:
-            return "Clean"
+        # Devolvemos todo el resultado de forma estructurada
+        return {
+            "status": "Infected" if stats["malicious"] > 0 else "Clean",
+            "malicious": stats.get("malicious", 0),
+            "undetected": stats.get("undetected", 0),
+            "suspicious": stats.get("suspicious", 0),
+            "harmless": stats.get("harmless", 0)
+        }
 
     except Exception as e:
         print(f"VT scan error: {e}")
         traceback.print_exc()
-        return "error during VT scan"
+        return {"error": "error during VT scan"}
+
 
 
 @router.post("/upload", response_model=FileAnalysisOut)
@@ -113,14 +120,31 @@ async def analyze_file_by_id(file_id: int, db: Session = Depends(get_db)):
     if not file_record:
         raise HTTPException(status_code=404, detail="File not found")
 
-    # Llama a scan_with_virustotal con el contenido guardado
     result_summary = await scan_with_virustotal(file_record.content)
 
-    # Actualiza la base de datos
-    file_record.result_summary = result_summary
+    # Determina el estado
+    detected = result_summary.get("malicious", 0)
+    status = "peligroso" if detected > 0 else "limpio"
+
+    # Guarda el estado en Redis
+    redis_client.set(f"file:{file_id}:status", status)
+    redis_client.set(f"file:{file_id}:summary", json.dumps(result_summary))  # Guarda resumen como JSON
+
+    # Actualiza la base de datos con el resumen convertido a string
+    file_record.result_summary = json.dumps(result_summary)
     file_record.analyzed_at = datetime.datetime.utcnow()
     db.commit()
     db.refresh(file_record)
 
     return FileAnalysisOut.from_orm(file_record)
+
+
+##Endpoint para consultar estado
+@router.get("/files/{file_id}/status", response_model=dict)
+def get_file_status(file_id: int):
+    status = redis_client.get(f"file:{file_id}:status")
+    if not status:
+        raise HTTPException(status_code=404, detail="Estado no encontrado")
+    return {"file_id": file_id, "status": status}
+
 
