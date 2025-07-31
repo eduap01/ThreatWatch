@@ -1,9 +1,11 @@
 import json
 import os
-from mailbox import Message
 
-from aio_pika import connect_robust
+
+from aio_pika import connect_robust, Message
 from dotenv import load_dotenv
+
+from backend.app.core.redis import redis_client
 
 load_dotenv()
 
@@ -17,9 +19,15 @@ async def send_analysis_task(task_data: dict):
 
         await channel.declare_queue(queue_name, durable=True)
 
+        file_id = task_data.get("file_id")
+        if not file_id:
+            raise ValueError("No file_id in task_data")
+
+        redis_client.set(f"file:{file_id}:status", "scanning")
+
         message = Message(
             body=json.dumps(task_data).encode(),
-            contnet_type= "application/json"
+            content_type="application/json"
         )
 
         await channel.default_exchange.publish(
