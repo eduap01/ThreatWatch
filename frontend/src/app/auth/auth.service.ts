@@ -3,6 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,10 +26,11 @@ login(username: string, password: string) {
   body.set('username', username);
   body.set('password', password);
 
-  return this.http.post(`${this.baseUrl}/login`, body.toString(), {
+  return this.http.post<LoginResponse>(`${this.baseUrl}/login`, body.toString(), {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
   });
 }
+
 
 
   saveToken(token: string) {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from './auth.service';
+import { AuthService, LoginResponse } from './auth.service';
 
 @Component({
   selector: 'app-login',
@@ -14,9 +14,9 @@ export class LoginComponent {
 
   onSubmit() {
     this.auth.login(this.username, this.password).subscribe({
-      next: (res) => {
+      next: (res: LoginResponse) => {
         this.auth.saveToken(res.access_token);
-        window.location.href = '/dashboard'; // redirigir al panel
+        window.location.href = '/dashboard';
       },
       error: () => {
         this.errorMessage = 'Credenciales inválidas';
