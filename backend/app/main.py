@@ -5,6 +5,8 @@ from fastapi.security import OAuth2PasswordBearer
 from backend.app.api import auth, file_analysis
 from backend.app.core.database import Base, engine
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from backend.app.models import user, file
 
 app = FastAPI()
@@ -45,6 +47,17 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/ping")
+def ping():
+    return "pong"
 
 
 

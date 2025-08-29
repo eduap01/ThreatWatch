@@ -49,9 +49,8 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run start -- --host 0.0.0.0 --poll 2000
+      - ./frontend:/app   # 👈 monta tu carpeta local dentro del contenedor
+      - /app/node_modules # 👈 evita que node_modules de tu host sobrescriba el del contenedor
     depends_on:
       - backend
 
