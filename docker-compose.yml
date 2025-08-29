@@ -42,16 +42,18 @@ services:
       - "5672:5672"
       - "15672:15672"  # para acceder a la UI de RabbitMQ
 
-# frontend:
-#   build:
-#     context: ./frontend
-#     dockerfile: Dockerfile
-#   ports:
-#     - "4200:4200"
-#   volumes:
-#     - ./frontend:/app
-#   command: ng serve --host 0.0.0.0 --poll=2000
-
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run start -- --host 0.0.0.0 --poll 2000
+    depends_on:
+      - backend
 
 volumes:
   pgdata:
