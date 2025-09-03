@@ -23,7 +23,7 @@ router = APIRouter(prefix="/files", tags=["files"])
 load_dotenv()
 VT_API_KEY = os.getenv("VIRUSTOTAL_API_KEY")
 
-async def scan_with_virustotal(content: bytes) -> dict:
+async def heuristic_analysis(content: bytes) -> dict:
     try:
         headers = {
             "x-apikey": VT_API_KEY
@@ -120,17 +120,16 @@ async def analyze_file_by_id(file_id: int, db: Session = Depends(get_db)):
     if not file_record:
         raise HTTPException(status_code=404, detail="File not found")
 
-    result_summary = await scan_with_virustotal(file_record.content)
+    # Ejecuta heurístico propio
+    result_summary = heuristic_analysis(file_record.content, file_record.filename)
 
-    # Determina el estado
-    detected = result_summary.get("malicious", 0)
-    status = "peligroso" if detected > 0 else "limpio"
+    status = result_summary["classification"]
 
     # Guarda el estado en Redis
     redis_client.set(f"file:{file_id}:status", status)
-    redis_client.set(f"file:{file_id}:summary", json.dumps(result_summary))  # Guarda resumen como JSON
+    redis_client.set(f"file:{file_id}:summary", json.dumps(result_summary))
 
-    # Actualiza la base de datos con el resumen convertido a string
+    # Actualiza la base de datos
     file_record.result_summary = json.dumps(result_summary)
     file_record.analyzed_at = datetime.datetime.utcnow()
     db.commit()
