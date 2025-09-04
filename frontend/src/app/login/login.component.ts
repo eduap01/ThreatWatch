@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
-import { AuthService, LoginResponse } from './auth.service';
+import { AuthService, LoginResponse } from '../auth/auth.service';
+
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.component.html'
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   username = '';
