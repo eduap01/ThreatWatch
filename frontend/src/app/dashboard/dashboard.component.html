@@ -1,8 +1,31 @@
-<h2>Panel de administración</h2>
-<nav style="display:flex; gap:12px; margin:12px 0;">
-  <a routerLink="/dashboard">Inicio</a>
-  <a routerLink="/register">Registrar</a>
-  <a routerLink="/login">Login</a>
-  <button (click)="logout()">Cerrar sesión</button>
-</nav>
-<p>¡Sesión iniciada! Ya puedes integrar alertas, logs y subida de ficheros.</p>
+<div class="dashboard-container">
+  <header>
+    <h1>Panel de control</h1>
+    <p>Bienvenido, <strong>{{ username }}</strong></p>
+  </header>
+
+  <section class="stats">
+    <div class="card">Archivos analizados: 12</div>
+    <div class="card">Amenazas detectadas: 3</div>
+  </section>
+
+  <section class="files-section">
+    <h2>Archivos subidos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Fecha</th>
+          <th>Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let file of files">
+          <td>{{ file.name }}</td>
+          <td>{{ file.date }}</td>
+          <td>{{ file.result }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>

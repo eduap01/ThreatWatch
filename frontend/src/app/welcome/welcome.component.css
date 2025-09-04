@@ -1,10 +1,92 @@
 .welcome-container {
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
   text-align: center;
-  margin-top: 100px;
 }
 
-.welcome-container button {
-  margin: 10px;
-  padding: 10px 20px;
-  cursor: pointer;
+.hero {
+  height: 100vh;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero h1 {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: fadeInDown 1s ease;
+}
+
+.hero p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  animation: fadeIn 2s ease;
+}
+
+.buttons .btn {
+  padding: 1rem 2rem;
+  margin: 0 1rem;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-login {
+  background-color: #ff6f61;
+  color: #fff;
+}
+
+.btn-login:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.btn-register {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.btn-register:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.skills-section {
+  padding: 4rem 2rem;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.skills-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.card {
+  background-color: #fff;
+  padding: 1.5rem 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

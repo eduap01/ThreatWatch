@@ -1,12 +1,11 @@
-<h2>Iniciar sesión</h2>
-<form (ngSubmit)="onSubmit()">
-  <label>Usuario:</label>
-  <input type="text" [(ngModel)]="username" name="username" required>
-
-  <label>Contraseña:</label>
-  <input type="password" [(ngModel)]="password" name="password" required>
-
-  <button type="submit">Entrar</button>
-</form>
-
-<p *ngIf="errorMessage" style="color:red">{{ errorMessage }}</p>
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Login</h2>
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+      <input type="email" placeholder="Email" name="email" [(ngModel)]="email" required>
+      <input type="password" placeholder="Contraseña" name="password" [(ngModel)]="password" required>
+      <button type="submit" class="btn btn-login" [disabled]="!loginForm.valid">Iniciar sesión</button>
+    </form>
+    <p>¿No tienes cuenta? <a routerLink="/register">Regístrate aquí</a></p>
+  </div>
+</div>

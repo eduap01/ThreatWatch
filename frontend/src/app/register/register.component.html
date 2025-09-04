@@ -1,16 +1,12 @@
-<h2>Registro</h2>
-<form (ngSubmit)="onSubmit()">
-  <label>Usuario:</label>
-  <input type="text" [(ngModel)]="username" name="username" required>
-
-  <label>Email:</label>
-  <input type="email" [(ngModel)]="email" name="email" required>
-
-  <label>Contraseña:</label>
-  <input type="password" [(ngModel)]="password" name="password" required>
-
-  <button type="submit">Registrarse</button>
-</form>
-
-<p *ngIf="successMessage" style="color:green">{{ successMessage }}</p>
-<p *ngIf="errorMessage" style="color:red">{{ errorMessage }}</p>
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Crear cuenta</h2>
+    <form (ngSubmit)="onRegister()" #registerForm="ngForm">
+      <input type="text" placeholder="Nombre completo" name="username" [(ngModel)]="username" required>
+      <input type="email" placeholder="Email" name="email" [(ngModel)]="email" required>
+      <input type="password" placeholder="Contraseña" name="password" [(ngModel)]="password" required>
+      <button type="submit" class="btn btn-register" [disabled]="!registerForm.valid">Registrarse</button>
+    </form>
+    <p>¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a></p>
+  </div>
+</div>
