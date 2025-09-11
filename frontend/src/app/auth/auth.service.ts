@@ -18,18 +18,23 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   register(data: { username: string; email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, data);
+    return this.http.post(`${this.baseUrl}/register`, data, {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
-login(username: string, password: string) {
-  const body = new URLSearchParams();
-  body.set('username', username);
-  body.set('password', password);
+  // login en auth.service.ts
+  login(username: string, password: string) {
+    const body = new URLSearchParams();
+    body.set('username', username);
+    body.set('password', password);
 
-  return this.http.post<LoginResponse>(`${this.baseUrl}/login`, body.toString(), {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-  });
-}
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+  }
+
+
 
 
 

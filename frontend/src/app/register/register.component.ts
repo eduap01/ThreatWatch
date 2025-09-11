@@ -15,15 +15,17 @@ export class RegisterComponent {
   constructor(private auth: AuthService, private router: Router) {}
 
   onRegister() {
-    this.auth.register({ username: this.username, email: this.email, password: this.password }).subscribe({
-      next: (res) => {
+  this.auth.register({ username: this.username, email: this.email, password: this.password })
+    .subscribe({
+      next: () => {
         alert('Usuario registrado correctamente');
-        this.router.navigate(['/login']); // redirige a login
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error(err);
         alert('Error al registrar usuario');
       }
     });
-  }
+}
+
 }

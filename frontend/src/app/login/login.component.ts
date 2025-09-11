@@ -9,24 +9,24 @@ import { AuthService, LoginResponse } from '../auth/auth.service';
 })
 export class LoginComponent {
   username: string = '';
-  email: string = '';       // <-- añadir
   password: string = '';
 
+  // 🔹 Asegúrate de que auth y router están en el constructor
   constructor(private auth: AuthService, private router: Router) {}
 
-  onLogin() {
+  onLogin(): void {
     this.auth.login(this.username, this.password).subscribe({
       next: (res: LoginResponse) => {
         if (res.access_token) {
-          this.auth.saveToken(res.access_token); // guardamos token en localStorage
-          this.router.navigate(['/dashboard']); // redirigimos al dashboard
+          this.auth.saveToken(res.access_token);
+          this.router.navigate(['/dashboard']);
         } else {
           alert('Usuario o contraseña incorrectos');
         }
       },
-      error: (err) => {
+      error: (err: any) => {  // 🔹 Declaramos explícitamente tipo 'any'
         console.error(err);
-        alert('Error al iniciar sesión');
+        alert(err.status === 401 ? 'Usuario o contraseña incorrectos' : 'Error al iniciar sesión');
       }
     });
   }
