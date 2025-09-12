@@ -12,7 +12,7 @@ services:
       - redis
       - rabbitmq
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/threatwatch
+      - DATABASE_URL=postgresql://postgres:1@host.docker.internal:5432/threatwatch
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     volumes:
@@ -51,8 +51,8 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - ./frontend:/app   # 👈 monta tu carpeta local dentro del contenedor
-      - /app/node_modules # 👈 evita que node_modules de tu host sobrescriba el del contenedor
+      - ./frontend:/app   # monta tu carpeta local dentro del contenedor
+      - /app/node_modules # evita que node_modules de tu host sobrescriba el del contenedor
     depends_on:
       - backend
 
