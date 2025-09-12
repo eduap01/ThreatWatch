@@ -1,1 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --color-dark-blue: #27456c;
+  --color-medium-blue: #47748b;
+  --color-light-blue: #99bfd5;
+  --color-beige: #eccca6;
+  --color-red: #e95c6c;
+  --color-salmon: #f7a088;
+}
+
+/* Ejemplo de estilos generales opcionales */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-light-blue);
+  color: var(--color-dark-blue);
+}

@@ -1,12 +1,13 @@
 .welcome-container {
   font-family: 'Segoe UI', sans-serif;
-  color: #fff;
+  color: #fff; /* puedes dejarlo en blanco o usar var(--color-light-blue) si quieres contraste */
   text-align: center;
 }
 
 .hero {
   height: 100vh;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  /* Sustituimos el degradado por tu paleta */
+  background: linear-gradient(135deg, var(--color-dark-blue), var(--color-medium-blue));
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -35,7 +36,7 @@
 }
 
 .btn-login {
-  background-color: #ff6f61;
+  background-color: var(--color-red);  /* antes #ff6f61 */
   color: #fff;
 }
 
@@ -45,7 +46,7 @@
 }
 
 .btn-register {
-  background-color: #4caf50;
+  background-color: var(--color-salmon); /* usé el salmón en lugar de verde */
   color: #fff;
 }
 
@@ -56,8 +57,8 @@
 
 .skills-section {
   padding: 4rem 2rem;
-  background-color: #f4f4f4;
-  color: #333;
+  background-color: var(--color-beige); /* antes #f4f4f4 */
+  color: var(--color-dark-blue);
 }
 
 .skills-cards {
@@ -69,7 +70,7 @@
 }
 
 .card {
-  background-color: #fff;
+  background-color: var(--color-light-blue); /* antes #fff */
   padding: 1.5rem 2rem;
   border-radius: 15px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);

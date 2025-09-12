@@ -3,7 +3,8 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  /* degradado con tu paleta */
+  background: linear-gradient(135deg, var(--color-dark-blue), var(--color-medium-blue));
   color: #fff;
 }
 
@@ -37,7 +38,8 @@
   border: none;
   border-radius: 50px;
   font-size: 1.2rem;
-  background-color: #ff6f61;
+  /* antes #ff6f61 → usamos el rojo de tu paleta */
+  background-color: var(--color-red);
   color: #fff;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -49,7 +51,8 @@
 }
 
 .auth-card a {
-  color: #fff;
+  /* en lugar de blanco fijo, puedes usar un tono de contraste de la paleta */
+  color: var(--color-light-blue);
   text-decoration: underline;
 }
 
