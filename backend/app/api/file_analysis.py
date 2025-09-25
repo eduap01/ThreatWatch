@@ -107,7 +107,7 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
         raise HTTPException(status_code=500, detail="Internal error uploading file")
 
 
-@router.get("/files/{file_id}", response_model=FileAnalysisOut)
+@router.get("/{file_id}", response_model=FileAnalysisOut)
 def get_file_analysis(file_id: int, db: Session = Depends(get_db)):
     file_record = db.query(FileAnalysis).filter(FileAnalysis.id == file_id).first()
     if not file_record:
@@ -140,11 +140,18 @@ async def analyze_file_by_id(file_id: int, db: Session = Depends(get_db)):
 
 
 ##Endpoint para consultar estado
-@router.get("/files/{file_id}/status", response_model=dict)
+@router.get("/{file_id}/status", response_model=dict)
 def get_file_status(file_id: int):
     status = redis_client.get(f"file:{file_id}:status")
     if not status:
         raise HTTPException(status_code=404, detail="Estado no encontrado")
     return {"file_id": file_id, "status": status}
+
+
+##listar los archvos del user
+@router.get("/", response_model=list[FileAnalysisOut])
+def list_user_files(db: Session = Depends(get_db)):
+    files = db.query(FileAnalysis).order_by(FileAnalysis.uploaded_at.desc()).all()
+    return [FileAnalysisOut.model_validate(f, from_attributes=True) for f in files]
 
 

@@ -12,6 +12,8 @@
 
   <section class="files-section">
     <h2>Archivos subidos</h2>
+    <button (click)="onUploadClick()" class="btn-upload">Subir archivo</button>
+    <input type="file" #fileInput style="display:none" (change)="uploadFile($event)">
     <table>
       <thead>
         <tr>
@@ -24,7 +26,9 @@
         <tr *ngFor="let file of files">
           <td>{{ file.name }}</td>
           <td>{{ file.date }}</td>
-          <td>{{ file.result }}</td>
+          <td>{{ file.result }}
+            <button (click)="analyzeFile(file.id)">Analizar</button>
+          </td>
         </tr>
       </tbody>
     </table>
