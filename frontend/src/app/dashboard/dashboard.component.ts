@@ -3,9 +3,16 @@ import { HttpClient } from '@angular/common/http';
 
 interface File {
   id: number;
-  name: string;
-  date: string;
-  result: string;
+  filename: string;
+  uploaded_at: string;
+  analyzed_at?: string;
+  result_summary?: {
+    status: string;
+    malicious: number;
+    suspicious: number;
+    undetected: number;
+    harmless: number;
+  };
 }
 
 @Component({
@@ -33,16 +40,28 @@ export class DashboardComponent implements OnInit {
     this.files.forEach(file => {
       this.http.get<{status: string}>(`http://localhost:8000/files/${file.id}/status`)
         .subscribe({
-          next: (res) => file.result = res.status,
-          error: () => file.result = 'Pendiente'
+          next: (res) => {
+            if (!file.result_summary) {
+              file.result_summary = { status: res.status, malicious: 0, suspicious: 0, undetected: 0, harmless: 0 };
+            } else {
+              file.result_summary.status = res.status;
+            }
+          },
+          error: () => {
+            if (!file.result_summary) {
+              file.result_summary = { status: 'Pendiente', malicious: 0, suspicious: 0, undetected: 0, harmless: 0 };
+            } else {
+              file.result_summary.status = 'Pendiente';
+            }
+          }
         });
     });
   });
 }
 
 analyzeFile(fileId: number) {
-  this.http.get(`http://localhost:8000/analyze/${fileId}`).subscribe({
-    next: () => this.loadFiles(), // recarga la tabla con el nuevo estado
+  this.http.get(`http://localhost:8000/files/analyze/${fileId}`).subscribe({
+    next: () => this.loadFiles(),
     error: (err) => console.error(err)
   });
 }
@@ -70,4 +89,16 @@ analyzeFile(fileId: number) {
       }
     });
   }
+
+  get totalAnalyzed(): number {
+    return this.files.filter(f => f.result_summary && f.result_summary.status !== 'Pendiente').length;
+  }
+
+  get totalThreats(): number {
+    return this.files
+      .filter(f => f.result_summary && f.result_summary.status !== 'Pendiente')
+      .reduce((acc, f) => acc + (f.result_summary?.malicious || 0), 0);
+  }
+
+
 }

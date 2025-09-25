@@ -6,8 +6,8 @@
   </header>
 
   <section class="stats">
-    <div class="card">Archivos analizados: 12</div>
-    <div class="card">Amenazas detectadas: 3</div>
+    <div class="card">Archivos analizados: {{ totalAnalyzed }}</div>
+    <div class="card">Amenazas detectadas: {{ totalThreats }}</div>
   </section>
 
   <section class="files-section">
@@ -24,9 +24,10 @@
       </thead>
       <tbody>
         <tr *ngFor="let file of files">
-          <td>{{ file.name }}</td>
-          <td>{{ file.date }}</td>
-          <td>{{ file.result }}
+          <td>{{ file.filename }}</td>
+          <td>{{ file.uploaded_at | date:'short' }}</td>
+          <td>
+            {{ file.result_summary?.status || 'Pendiente' }}
             <button (click)="analyzeFile(file.id)">Analizar</button>
           </td>
         </tr>
